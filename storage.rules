@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Expense receipts: owner-only, strict path/filename validation, allowed file types, max 5 MB
+    match /receipts/{userId}/{expenseId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && userId.size() > 0 && userId.size() <= 128
+        && userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && expenseId.size() > 0 && expenseId.size() <= 128
+        && expenseId.matches('^[a-zA-Z0-9_\\-]+$')
+        && fileName.size() > 0 && fileName.size() <= 200
+        && fileName.matches('^[a-zA-Z0-9._-]+$')
+        && !fileName.matches('.*\\.\\..*')
+        && request.resource != null
+        && request.resource.size <= 5 * 1024 * 1024
+        && (
+          request.resource.contentType.matches('image/(png|jpeg|jpg|webp)')
+          || request.resource.contentType == 'application/pdf'
+        );
+      allow delete: if request.auth != null
+        && request.auth.uid == userId
+        && userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && expenseId.matches('^[a-zA-Z0-9_\\-]+$')
+        && fileName.matches('^[a-zA-Z0-9._-]+$')
+        && !fileName.matches('.*\\.\\..*');
+    }
+  }
+}

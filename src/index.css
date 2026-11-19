@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-brand: #DC2626;
+  --color-brand-hover: #B91C1C;
+  --color-ink: #1F2937;
+  --color-canvas: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-info: #2563EB;
+  --color-muted: #64748B;
+  --color-line: #E2E8F0;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    background-color: #F8FAFC;
+    color: #1F2937;
+    color-scheme: light;
+  }
+
+  html.dark {
+    background-color: #0B1120;
+    color: #F1F5F9;
+    color-scheme: dark;
+  }
+
+  /* Semantic surface/text remapping when dark mode is enabled while preserving #DC2626 primary */
+  html.dark body {
+    background-color: #0B1120;
+    color: #F1F5F9;
+  }
+
+  html.dark [class*="bg-[#F8FAFC]"],
+  html.dark .bg-slate-50 {
+    background-color: #111827;
+  }
+
+  html.dark .bg-white,
+  html.dark [class*="bg-white/95"] {
+    background-color: #0F172A;
+  }
+
+  html.dark .bg-slate-100,
+  html.dark [class*="bg-slate-100/"] {
+    background-color: #1E293B;
+  }
+
+  html.dark [class*="border-[#E2E8F0]"],
+  html.dark [class*="divide-[#E2E8F0]"] {
+    border-color: #1E293B;
+  }
+
+  html.dark [class*="text-[#1F2937]"] {
+    color: #F1F5F9;
+  }
+
+  html.dark [class*="text-[#64748B]"] {
+    color: #94A3B8;
+  }
+
+  html.dark input,
+  html.dark select,
+  html.dark textarea {
+    background-color: #0F172A;
+    color: #F1F5F9;
+    border-color: #334155;
+  }
+
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #64748B;
+  }
+
+  html.dark .hover\:bg-slate-50:hover,
+  html.dark .hover\:bg-slate-100:hover,
+  html.dark [class*="hover:bg-slate-100"]:hover {
+    background-color: #1E293B;
+  }
+
+  html.dark .bg-red-50,
+  html.dark [class*="bg-red-50/"] {
+    background-color: rgba(220, 38, 38, 0.16);
+  }
+
+  html.dark .bg-amber-50,
+  html.dark [class*="bg-amber-50/"] {
+    background-color: rgba(245, 158, 11, 0.14);
+  }
+
+  html.dark .bg-blue-50,
+  html.dark [class*="bg-blue-50/"] {
+    background-color: rgba(37, 99, 235, 0.15);
+  }
+
+  html.dark .bg-emerald-50,
+  html.dark [class*="bg-emerald-50/"] {
+    background-color: rgba(22, 163, 74, 0.14);
+  }
+
+  /* Display density support */
+  html[data-density="compact"] main {
+    padding-top: 1rem;
+    padding-bottom: 4.5rem;
+  }
+
+  html[data-density="compact"] .p-6 {
+    padding: 1rem;
+  }
+
+  html[data-density="compact"] .space-y-6 > :not(:last-child) {
+    margin-bottom: 1rem;
+  }
+
+  /* Reduced motion accessibility */
+  html[data-reduced-motion="true"] *,
+  html[data-reduced-motion="true"] *::before,
+  html[data-reduced-motion="true"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

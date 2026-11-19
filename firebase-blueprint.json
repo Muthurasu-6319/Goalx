@@ -1,0 +1,1313 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Personal CEO user profile, financial baseline, personal goals, and gamification state.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "photoUrl": { "type": "string", "maxLength": 1000 },
+        "monthlyIncome": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "timezone": { "type": "string", "maxLength": 80 },
+        "bio": { "type": "string", "maxLength": 500 },
+        "personalGoals": { "type": "array" },
+        "onboardingCompleted": { "type": "boolean" },
+        "xp": { "type": "number" },
+        "level": { "type": "number" },
+        "streakDays": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "name", "email", "onboardingCompleted", "createdAt", "updatedAt"]
+    },
+    "CompanyProfile": {
+      "title": "CompanyProfile",
+      "description": "CEO company profile, industry, service offerings, location, and company goals.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "website": { "type": "string", "maxLength": 300 },
+        "industry": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "services": { "type": "array" },
+        "location": { "type": "string", "maxLength": 300 },
+        "startDate": { "type": "string", "maxLength": 40 },
+        "stage": { "type": "string", "maxLength": 80 },
+        "goals": { "type": "array" },
+        "monthlyRevenue": { "type": "number" },
+        "activeProjectsCount": { "type": "number" },
+        "competitorsTrackedCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "name", "industry", "createdAt", "updatedAt"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User application preferences and notification settings.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "theme": { "type": "string", "enum": ["light", "dark"], "maxLength": 20 },
+        "density": { "type": "string", "enum": ["comfortable", "compact"], "maxLength": 20 },
+        "reducedMotion": { "type": "boolean" },
+        "notificationsEnabled": { "type": "boolean" },
+        "emailDigest": { "type": "boolean" },
+        "browserPushEnabled": { "type": "boolean" },
+        "notificationPrefs": { "type": "object" },
+        "weekStartsOn": { "type": "string", "enum": ["monday", "sunday"], "maxLength": 20 },
+        "currency": { "type": "string", "maxLength": 10 },
+        "currencyFormat": { "type": "string", "enum": ["indian", "standard"], "maxLength": 20 },
+        "accountingBasis": { "type": "string", "enum": ["cash", "accrual"], "maxLength": 20 },
+        "timezone": { "type": "string", "maxLength": 80 },
+        "sidebarCollapsed": { "type": "boolean" },
+        "defaultCommissionPct": { "type": "number" },
+        "customExpenseCategories": { "type": "array" },
+        "gamificationConfig": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "theme", "notificationsEnabled", "emailDigest", "weekStartsOn", "currency", "sidebarCollapsed", "createdAt", "updatedAt"]
+    },
+    "PersonalGoal": {
+      "title": "PersonalGoal",
+      "description": "Personal goal with measurable target, type, priority, dates, and status.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "startDate": { "type": "string", "maxLength": 20 },
+        "targetDate": { "type": "string", "maxLength": 20 },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High"], "maxLength": 20 },
+        "goalType": {
+          "type": "string",
+          "enum": ["Numeric", "Financial", "Percentage", "Task-based", "Time-based", "Learning", "Custom measurable"],
+          "maxLength": 40
+        },
+        "targetValue": { "type": "number" },
+        "currentValue": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 40 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "status": {
+          "type": "string",
+          "enum": ["Not Started", "In Progress", "Completed", "Delayed", "Archived"],
+          "maxLength": 30
+        },
+        "sourceType": { "type": "string", "enum": ["", "competitiveGap", "aiProposal"], "maxLength": 30 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "title", "category", "startDate", "targetDate", "priority", "goalType", "targetValue", "currentValue", "status", "createdAt", "updatedAt"]
+    },
+    "GoalMilestone": {
+      "title": "GoalMilestone",
+      "description": "Ordered milestone belonging to a personal goal.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "goalId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "completed": { "type": "boolean" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "goalId", "title", "completed", "order", "createdAt", "updatedAt"]
+    },
+    "GoalProgressEntry": {
+      "title": "GoalProgressEntry",
+      "description": "Append-only progress history entry for a personal goal.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "goalId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "value": { "type": "number" },
+        "delta": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "note": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "goalId", "value", "delta", "date", "createdAt"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "Personal daily/weekly habit with schedule and reminder configuration.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "icon": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "scheduleType": { "type": "string", "enum": ["daily", "weekdays", "weekly_target"], "maxLength": 30 },
+        "weekdays": { "type": "array" },
+        "weeklyTarget": { "type": "number" },
+        "reminderTime": { "type": "string", "maxLength": 20 },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "name", "icon", "scheduleType", "weekdays", "weeklyTarget", "active", "createdAt", "updatedAt"]
+    },
+    "HabitLog": {
+      "title": "HabitLog",
+      "description": "Single completion record per habit per YYYY-MM-DD date.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "habitId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "date": { "type": "string", "maxLength": 20 },
+        "completed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "habitId", "date", "completed", "createdAt", "updatedAt"]
+    },
+    "PersonalIncome": {
+      "title": "PersonalIncome",
+      "description": "Personal income transaction stored in integer paise.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "source": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "type": { "type": "string", "enum": ["Salary", "Freelance", "Business", "Other"], "maxLength": 30 },
+        "amountPaise": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "source", "type", "amountPaise", "date", "createdAt", "updatedAt"]
+    },
+    "PersonalExpense": {
+      "title": "PersonalExpense",
+      "description": "Personal expense transaction stored in integer paise.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "amountPaise": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "paymentMethod": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "category", "amountPaise", "date", "paymentMethod", "createdAt", "updatedAt"]
+    },
+    "SavingsGoal": {
+      "title": "SavingsGoal",
+      "description": "Personal savings goal whose current saved total is derived from savingsTransactions.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "targetAmountPaise": { "type": "number" },
+        "targetDate": { "type": "string", "maxLength": 20 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "name", "targetAmountPaise", "targetDate", "createdAt", "updatedAt"]
+    },
+    "SavingsTransaction": {
+      "title": "SavingsTransaction",
+      "description": "Individual deposit or withdrawal transaction against a savings goal in integer paise.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "savingsGoalId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["deposit", "withdraw"], "maxLength": 20 },
+        "amountPaise": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "savingsGoalId", "type", "amountPaise", "date", "createdAt"]
+    },
+    "CalendarEvent": {
+      "title": "CalendarEvent",
+      "description": "Unified calendar event supporting manual personal events and linked module deadlines.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "Personal Event",
+            "Goal Deadline",
+            "Habit Reminder",
+            "Project Deadline",
+            "Client Follow-up",
+            "Payment Due",
+            "Team Meeting",
+            "Competitor Review",
+            "Gap Deadline",
+            "Monthly Competitor Review"
+          ],
+          "maxLength": 50
+        },
+        "date": { "type": "string", "maxLength": 20 },
+        "startTime": { "type": "string", "maxLength": 10 },
+        "endTime": { "type": "string", "maxLength": 10 },
+        "allDay": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "reminderMinutes": { "type": "number" },
+        "sourceType": {
+          "type": "string",
+          "enum": ["manual", "goal", "habit", "lead", "project", "client", "payment", "invoice", "meeting", "competitor", "competitiveGap", "aiProposal"],
+          "maxLength": 30
+        },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "title", "eventType", "date", "allDay", "sourceType", "createdAt", "updatedAt"]
+    },
+    "BusinessService": {
+      "title": "BusinessService",
+      "description": "Service catalog item offered by the CEO company.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "startingPricePaise": { "type": "number" },
+        "estimatedDeliveryDays": { "type": "number" },
+        "status": { "type": "string", "enum": ["Active", "Planned", "Inactive"], "maxLength": 20 },
+        "subServices": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "name", "startingPricePaise", "estimatedDeliveryDays", "status", "subServices", "createdAt", "updatedAt"]
+    },
+    "Lead": {
+      "title": "Lead",
+      "description": "CRM sales lead tracked through pipeline stages.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "clientName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "businessName": { "type": "string", "maxLength": 160 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 200 },
+        "location": { "type": "string", "maxLength": 200 },
+        "requirement": { "type": "string", "maxLength": 2000 },
+        "serviceId": { "type": "string", "maxLength": 128 },
+        "serviceCategory": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "leadSource": {
+          "type": "string",
+          "enum": ["Meta Ads", "Direct", "Referral", "Telecalling", "Website", "Repeat Client", "Social Media", "Other"],
+          "maxLength": 40
+        },
+        "leadGeneratedDate": { "type": "string", "maxLength": 20 },
+        "assignedPerson": { "type": "string", "maxLength": 120 },
+        "estimatedBudgetPaise": { "type": "number" },
+        "followUpDate": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "status": {
+          "type": "string",
+          "enum": ["New", "Contacted", "Interested", "Follow-up", "Proposal Sent", "Negotiation", "Won", "Lost"],
+          "maxLength": 30
+        },
+        "lostReason": { "type": "string", "maxLength": 500 },
+        "archived": { "type": "boolean" },
+        "convertedClientId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "clientName", "serviceCategory", "leadSource", "leadGeneratedDate", "estimatedBudgetPaise", "status", "archived", "createdAt", "updatedAt"]
+    },
+    "LeadActivity": {
+      "title": "LeadActivity",
+      "description": "Append-only audit log of lead stage transitions.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "leadId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "fromStatus": { "type": "string", "maxLength": 40 },
+        "toStatus": {
+          "type": "string",
+          "enum": ["New", "Contacted", "Interested", "Follow-up", "Proposal Sent", "Negotiation", "Won", "Lost"],
+          "maxLength": 30
+        },
+        "date": { "type": "string", "maxLength": 20 },
+        "note": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "leadId", "fromStatus", "toStatus", "date", "createdAt", "updatedAt"]
+    },
+    "LeadNote": {
+      "title": "LeadNote",
+      "description": "Communication log note attached to a CRM lead.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "leadId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "channel": { "type": "string", "enum": ["call", "whatsapp", "email", "meeting", "note"], "maxLength": 20 },
+        "date": { "type": "string", "maxLength": 20 },
+        "text": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "leadId", "channel", "date", "text", "createdAt", "updatedAt"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Converted or manually added business client record.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "clientName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "company": { "type": "string", "maxLength": 160 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 200 },
+        "address": { "type": "string", "maxLength": 500 },
+        "sourceLeadId": { "type": "string", "maxLength": 128 },
+        "serviceId": { "type": "string", "maxLength": 128 },
+        "serviceCategory": { "type": "string", "maxLength": 160 },
+        "clientManager": { "type": "string", "maxLength": 120 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["Active", "Inactive", "Recurring"], "maxLength": 20 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "clientName", "status", "createdAt", "updatedAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Company client delivery project linked to service and optional assigned team member.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "clientId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "serviceId": { "type": "string", "maxLength": 128 },
+        "serviceCategory": { "type": "string", "maxLength": 160 },
+        "assignedMemberId": { "type": "string", "maxLength": 128 },
+        "budgetPaise": { "type": "number" },
+        "status": { "type": "string", "enum": ["Planning", "In Progress", "Completed", "On Hold", "Cancelled"], "maxLength": 30 },
+        "startDate": { "type": "string", "maxLength": 20 },
+        "dueDate": { "type": "string", "maxLength": 20 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "title", "clientId", "budgetPaise", "status", "startDate", "createdAt", "updatedAt"]
+    },
+    "ProjectPayment": {
+      "title": "ProjectPayment",
+      "description": "Single source of truth for project income payments.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "clientId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amountPaise": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "method": { "type": "string", "enum": ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Other"], "maxLength": 30 },
+        "paymentType": { "type": "string", "enum": ["Advance", "Partial", "Final"], "maxLength": 20 },
+        "invoiceNumber": { "type": "string", "maxLength": 60 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "isDeleted": { "type": "boolean" },
+        "deletedAt": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "projectId", "clientId", "amountPaise", "date", "method", "paymentType", "isDeleted", "createdAt", "updatedAt"]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "description": "Company team member profile.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "role": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "department": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "status": { "type": "string", "enum": ["Active", "Inactive"], "maxLength": 20 },
+        "joinedDate": { "type": "string", "maxLength": 20 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "name", "role", "status", "createdAt", "updatedAt"]
+    },
+    "TeamMemberPrivate": {
+      "title": "TeamMemberPrivate",
+      "description": "Owner-only confidential compensation profile for a team member.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "memberId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "baseSalaryPaise": { "type": "number" },
+        "commissionRatePct": { "type": "number" },
+        "bankNotes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "memberId", "baseSalaryPaise", "createdAt", "updatedAt"]
+    },
+    "OtherIncome": {
+      "title": "OtherIncome",
+      "description": "Non-project company income (subscriptions, consulting, interest, refunds received).",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "source": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "clientId": { "type": "string", "maxLength": 128 },
+        "amountPaise": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "method": { "type": "string", "enum": ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Other"], "maxLength": 30 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "isDeleted": { "type": "boolean" },
+        "deletedAt": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "source", "amountPaise", "date", "method", "isDeleted", "createdAt", "updatedAt"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Lightweight billing invoice record with status derived from projectPayments.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "invoiceNumber": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "clientId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "amountPaise": { "type": "number" },
+        "issueDate": { "type": "string", "maxLength": 20 },
+        "dueDate": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "invoiceNumber", "clientId", "amountPaise", "issueDate", "dueDate", "createdAt", "updatedAt"]
+    },
+    "BusinessExpense": {
+      "title": "BusinessExpense",
+      "description": "Company operating expense record.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "amountPaise": { "type": "number" },
+        "date": { "type": "string", "maxLength": 20 },
+        "paymentMethod": { "type": "string", "enum": ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Other"], "maxLength": 30 },
+        "paidBy": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "serviceId": { "type": "string", "maxLength": 128 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "attachmentUrl": { "type": "string", "maxLength": 1000 },
+        "attachmentName": { "type": "string", "maxLength": 200 },
+        "recurringTemplateId": { "type": "string", "maxLength": 128 },
+        "recurringMonth": { "type": "string", "maxLength": 10 },
+        "salaryRecordId": { "type": "string", "maxLength": 128 },
+        "isDeleted": { "type": "boolean" },
+        "deletedAt": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "title", "category", "amountPaise", "date", "paymentMethod", "isDeleted", "createdAt", "updatedAt"]
+    },
+    "RecurringExpenseTemplate": {
+      "title": "RecurringExpenseTemplate",
+      "description": "Monthly recurring company expense template.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "amountPaise": { "type": "number" },
+        "dayOfMonth": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["Cash", "UPI", "Bank Transfer", "Cheque", "Card", "Other"], "maxLength": 30 },
+        "paidBy": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "serviceId": { "type": "string", "maxLength": 128 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "active": { "type": "boolean" },
+        "lastGeneratedMonth": { "type": "string", "maxLength": 10 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "title", "category", "amountPaise", "dayOfMonth", "paymentMethod", "active", "createdAt", "updatedAt"]
+    },
+    "SalaryRecord": {
+      "title": "SalaryRecord",
+      "description": "Owner-only monthly payroll record keyed by memberId_yyyy-MM.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "memberId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "month": { "type": "string", "maxLength": 10 },
+        "baseSalaryPaise": { "type": "number" },
+        "commissionPaise": { "type": "number" },
+        "commissionPctUsed": { "type": "number" },
+        "commissionOverride": { "type": "boolean" },
+        "commissionNote": { "type": "string", "maxLength": 500 },
+        "incentivePaise": { "type": "number" },
+        "deductionsPaise": { "type": "number" },
+        "netPayablePaise": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Paid"], "maxLength": 20 },
+        "paidDate": { "type": "string", "maxLength": 20 },
+        "paymentMethod": { "type": "string", "maxLength": 30 },
+        "linkedExpenseId": { "type": "string", "maxLength": 160 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "memberId", "month", "baseSalaryPaise", "commissionPaise", "commissionPctUsed", "commissionOverride", "incentivePaise", "deductionsPaise", "netPayablePaise", "status", "createdAt", "updatedAt"]
+    },
+    "Budget": {
+      "title": "Budget",
+      "description": "Monthly company spending budget by overall, service, marketing, team, or category.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "budgetType": { "type": "string", "enum": ["Monthly Overall", "Service", "Marketing", "Team", "Category"], "maxLength": 30 },
+        "target": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "month": { "type": "string", "maxLength": 10 },
+        "limitPaise": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "budgetType", "target", "month", "limitPaise", "createdAt", "updatedAt"]
+    },
+    "FinanceAuditLog": {
+      "title": "FinanceAuditLog",
+      "description": "Immutable create-only audit log for financial edits and soft deletes.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "entityType": { "type": "string", "enum": ["projectPayment", "otherIncome", "businessExpense"], "maxLength": 30 },
+        "entityId": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "action": { "type": "string", "enum": ["update", "soft_delete", "restore"], "maxLength": 30 },
+        "actorName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "actorUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "timestampIso": { "type": "string", "maxLength": 40 },
+        "oldValueSummary": { "type": "string", "maxLength": 1000 },
+        "newValueSummary": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "entityType", "entityId", "action", "actorName", "actorUid", "timestampIso", "oldValueSummary", "newValueSummary", "createdAt"]
+    },
+    "InAppNotification": {
+      "title": "InAppNotification",
+      "description": "Deduplicated in-app budget threshold alerts.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["budget_80", "budget_100"], "maxLength": 30 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "month": { "type": "string", "maxLength": 10 },
+        "sourceId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "type", "title", "message", "month", "sourceId", "read", "createdAt", "updatedAt"]
+    },
+    "Competitor": {
+      "title": "Competitor",
+      "description": "Tracked local, regional, or national competitor with verification status and review schedule.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "website": { "type": "string", "maxLength": 300 },
+        "location": { "type": "string", "maxLength": 200 },
+        "marketLevel": { "type": "string", "enum": ["Local", "Tamil Nadu", "India"], "maxLength": 30 },
+        "classification": {
+          "type": "string",
+          "enum": ["Direct Competitor", "Indirect Competitor", "Service-Specific Competitor", "Regional Benchmark", "National Benchmark"],
+          "maxLength": 40
+        },
+        "foundedYear": { "type": "string", "minLength": 1, "maxLength": 20 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "industriesServed": { "type": "array" },
+        "primaryServices": { "type": "array" },
+        "pricingModel": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "targetAudience": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "threatLevel": { "type": "string", "enum": ["Low", "Medium", "High", "Unknown"], "maxLength": 20 },
+        "status": { "type": "string", "enum": ["Active", "Watching", "Candidate", "Inactive", "Archived", "Surpassed"], "maxLength": 20 },
+        "verificationStatus": { "type": "string", "enum": ["Unverified", "Partially Verified", "Verified"], "maxLength": 30 },
+        "isActiveTarget": { "type": "boolean" },
+        "surpassedDate": { "type": "string", "maxLength": 20 },
+        "surpassVerificationRunId": { "type": "string", "maxLength": 128 },
+        "surpassPrevReviewId": { "type": "string", "maxLength": 128 },
+        "surpassCurrReviewId": { "type": "string", "maxLength": 128 },
+        "nextReviewDate": { "type": "string", "maxLength": 20 },
+        "lastVerifiedDate": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "seedKey": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "companyName", "marketLevel", "classification",
+        "foundedYear", "pricingModel", "targetAudience", "threatLevel",
+        "status", "verificationStatus", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitorMetric": {
+      "title": "CompetitorMetric",
+      "description": "Structured tracked metric for a competitor with data status and mandatory sourceUrl when Verified.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "metricKey": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "metricName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "category": { "type": "string", "enum": ["Services", "Digital Presence", "Technology", "Business Evidence"], "maxLength": 40 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "serviceOfferStatus": { "type": "string", "enum": ["", "Offered", "Partially Offered", "Not Offered", "Unknown"], "maxLength": 30 },
+        "rating": { "type": "number" },
+        "scorecardGroup": { "type": "string", "enum": ["", "Market Presence", "Business Performance"], "maxLength": 30 },
+        "sourceUrl": { "type": "string", "maxLength": 500 },
+        "evidenceDescription": { "type": "string", "maxLength": 1500 },
+        "dataStatus": { "type": "string", "enum": ["Verified", "User Entered", "Estimated", "Unknown"], "maxLength": 30 },
+        "lastVerifiedDate": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "competitorId", "metricKey", "metricName",
+        "category", "value", "dataStatus", "lastVerifiedDate", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitorEvidence": {
+      "title": "CompetitorEvidence",
+      "description": "Evidence log record backing competitor claims with source URL, description, and verification date.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "metricId": { "type": "string", "maxLength": 128 },
+        "metricKey": { "type": "string", "maxLength": 80 },
+        "category": { "type": "string", "enum": ["Services", "Digital Presence", "Technology", "Business Evidence"], "maxLength": 40 },
+        "metricName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "sourceUrl": { "type": "string", "maxLength": 500 },
+        "sourceTitle": { "type": "string", "maxLength": 200 },
+        "evidenceDescription": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "dataStatus": { "type": "string", "enum": ["Verified", "User Entered", "Estimated", "Unknown"], "maxLength": 30 },
+        "lastVerifiedDate": { "type": "string", "maxLength": 20 },
+        "origin": { "type": "string", "enum": ["Manual", "AI Accepted", "AI Edited"], "maxLength": 30 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "competitorId", "category", "metricName",
+        "value", "evidenceDescription", "dataStatus", "lastVerifiedDate", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitorResearchHistory": {
+      "title": "CompetitorResearchHistory",
+      "description": "Audit log of AI-assisted and manual competitor research runs.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorId": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "enum": ["research_competitor", "analyze_website", "discover_competitors", "manual_research"], "maxLength": 40 },
+        "targetLabel": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "targetUrl": { "type": "string", "maxLength": 500 },
+        "runDate": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "enum": ["Completed", "Unavailable", "Failed"], "maxLength": 20 },
+        "groundingUsed": { "type": "boolean" },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "searchQueries": { "type": "array" },
+        "sourceUrls": { "type": "array" },
+        "findingsCount": { "type": "number" },
+        "acceptedCount": { "type": "number" },
+        "rejectedCount": { "type": "number" },
+        "errorMessage": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "competitorId", "action", "targetLabel",
+        "runDate", "status", "groundingUsed", "findingsCount",
+        "acceptedCount", "rejectedCount", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitorPendingFinding": {
+      "title": "CompetitorPendingFinding",
+      "description": "AI-assisted findings awaiting explicit user review (Accept, Edit, or Reject).",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "researchRunId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorId": { "type": "string", "maxLength": 128 },
+        "findingKind": { "type": "string", "enum": ["metric", "candidate_discovery"], "maxLength": 30 },
+        "category": { "type": "string", "enum": ["Services", "Digital Presence", "Technology", "Business Evidence", "Candidate Discovery"], "maxLength": 40 },
+        "metricKey": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "metricName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "proposedValue": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "sourceUrl": { "type": "string", "maxLength": 500 },
+        "sourceTitle": { "type": "string", "maxLength": 200 },
+        "evidenceDescription": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "confidenceNote": { "type": "string", "maxLength": 500 },
+        "dataStatus": { "type": "string", "enum": ["Verified", "User Entered", "Estimated", "Unknown"], "maxLength": 30 },
+        "decision": { "type": "string", "enum": ["Pending", "Accepted", "Edited", "Rejected"], "maxLength": 20 },
+        "aiAssisted": { "type": "boolean" },
+        "candidateName": { "type": "string", "maxLength": 160 },
+        "candidateLocation": { "type": "string", "maxLength": 200 },
+        "candidateMarketLevel": { "type": "string", "maxLength": 30 },
+        "candidateClassification": { "type": "string", "maxLength": 40 },
+        "candidateServices": { "type": "array" },
+        "reviewedAt": { "type": "string", "maxLength": 40 },
+        "reviewedValue": { "type": "string", "maxLength": 500 },
+        "reviewedDataStatus": { "type": "string", "maxLength": 30 },
+        "reviewedNotes": { "type": "string", "maxLength": 1000 },
+        "acceptedEvidenceId": { "type": "string", "maxLength": 128 },
+        "createdCandidateId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "researchRunId", "competitorId", "findingKind",
+        "category", "metricKey", "metricName", "proposedValue", "evidenceDescription",
+        "dataStatus", "decision", "aiAssisted", "createdAt", "updatedAt"
+      ]
+    },
+    "OwnMetric": {
+      "title": "OwnMetric",
+      "description": "Gen Z Neural-X own comparison metric with source tracking (GoalX derived or User entered) and evidence.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "metricKey": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "metricName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "dimensionKey": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "scorecardType": { "type": "string", "enum": ["Market Presence", "Business Performance"], "maxLength": 30 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "rating": { "type": "number" },
+        "score": { "type": "number" },
+        "sourceType": { "type": "string", "enum": ["Calculated from GoalX data", "User entered"], "maxLength": 40 },
+        "sourceUrl": { "type": "string", "maxLength": 500 },
+        "evidenceDescription": { "type": "string", "maxLength": 1500 },
+        "dataStatus": { "type": "string", "enum": ["Verified", "User Entered", "Estimated", "Unknown"], "maxLength": 30 },
+        "lastVerifiedDate": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "metricKey", "metricName", "dimensionKey", "scorecardType",
+        "value", "rating", "score", "sourceType", "dataStatus", "lastVerifiedDate", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitorScoreConfig": {
+      "title": "CompetitorScoreConfig",
+      "description": "Weighted comparison dimension configuration (sum = 100), rating-to-100 map, and surpass rule thresholds.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "weights": { "type": "object" },
+        "ratingScoreMap": { "type": "object" },
+        "minComparableMetrics": { "type": "number" },
+        "minScoreAdvantage": { "type": "number" },
+        "minEvidenceCoveragePct": { "type": "number" },
+        "minConsecutiveMonths": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "weights", "ratingScoreMap", "minComparableMetrics",
+        "minScoreAdvantage", "minEvidenceCoveragePct", "minConsecutiveMonths", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitorComparison": {
+      "title": "CompetitorComparison",
+      "description": "Immutable comparison snapshot and permanent Surpassed achievement report archive.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "snapshotKind": { "type": "string", "enum": ["comparison", "surpassed_archive"], "maxLength": 30 },
+        "month": { "type": "string", "maxLength": 10 },
+        "ownOverallScore": { "type": "number" },
+        "competitorOverallScore": { "type": "number" },
+        "ownMarketPresenceScore": { "type": "number" },
+        "competitorMarketPresenceScore": { "type": "number" },
+        "ownBusinessPerformanceScore": { "type": "number" },
+        "competitorBusinessPerformanceScore": { "type": "number" },
+        "comparableCount": { "type": "number" },
+        "ownLeadCount": { "type": "number" },
+        "competitorLeadCount": { "type": "number" },
+        "equalCount": { "type": "number" },
+        "missingCount": { "type": "number" },
+        "scoreAdvantage": { "type": "number" },
+        "aheadMetrics": { "type": "array" },
+        "behindMetrics": { "type": "array" },
+        "equalMetrics": { "type": "array" },
+        "missingMetrics": { "type": "array" },
+        "gapsClosedCount": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "competitorId", "competitorName", "snapshotKind",
+        "ownOverallScore", "competitorOverallScore", "ownMarketPresenceScore", "competitorMarketPresenceScore",
+        "ownBusinessPerformanceScore", "competitorBusinessPerformanceScore", "comparableCount",
+        "ownLeadCount", "competitorLeadCount", "equalCount", "missingCount", "scoreAdvantage",
+        "gapsClosedCount", "createdAt"
+      ]
+    },
+    "CompetitorMonthlyReview": {
+      "title": "CompetitorMonthlyReview",
+      "description": "Immutable monthly scorecard review snapshot keyed deterministically by competitorId_yyyy-MM.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "month": { "type": "string", "maxLength": 10 },
+        "version": { "type": "number" },
+        "reviewDate": { "type": "string", "maxLength": 20 },
+        "ownOverallScore": { "type": "number" },
+        "competitorOverallScore": { "type": "number" },
+        "scoreAdvantage": { "type": "number" },
+        "ownMarketPresenceScore": { "type": "number" },
+        "competitorMarketPresenceScore": { "type": "number" },
+        "ownBusinessPerformanceScore": { "type": "number" },
+        "competitorBusinessPerformanceScore": { "type": "number" },
+        "comparableCount": { "type": "number" },
+        "ownLeadsCount": { "type": "number" },
+        "evidenceCoveragePct": { "type": "number" },
+        "eligibleForSurpass": { "type": "boolean" },
+        "summary": { "type": "string", "maxLength": 1500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "competitorId", "month", "version", "reviewDate",
+        "ownOverallScore", "competitorOverallScore", "scoreAdvantage", "ownMarketPresenceScore",
+        "competitorMarketPresenceScore", "ownBusinessPerformanceScore", "competitorBusinessPerformanceScore",
+        "comparableCount", "ownLeadsCount", "evidenceCoveragePct", "eligibleForSurpass", "createdAt"
+      ]
+    },
+    "CompetitiveGap": {
+      "title": "CompetitiveGap",
+      "description": "Identified competitive gap with impact, priority, effort, action suggestion, progress, and goal/task links.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "linkedCompetitorIds": { "type": "array" },
+        "linkedMetricKey": { "type": "string", "maxLength": 80 },
+        "evidenceIds": { "type": "array" },
+        "businessImpact": { "type": "string", "enum": ["Low", "Medium", "High"], "maxLength": 20 },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High"], "maxLength": 20 },
+        "estimatedEffort": { "type": "string", "enum": ["Low", "Medium", "High"], "maxLength": 20 },
+        "suggestedAction": { "type": "string", "maxLength": 1500 },
+        "suggestedActionOrigin": { "type": "string", "enum": ["rule", "AI-assisted"], "maxLength": 20 },
+        "deadline": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "enum": ["Open", "In Progress", "Done", "Dismissed"], "maxLength": 20 },
+        "progressPct": { "type": "number" },
+        "convertedGoalId": { "type": "string", "maxLength": 128 },
+        "convertedTaskId": { "type": "string", "maxLength": 128 },
+        "calendarEventId": { "type": "string", "maxLength": 128 },
+        "templateKey": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "title", "businessImpact", "priority",
+        "estimatedEffort", "suggestedActionOrigin", "status", "progressPct", "createdAt", "updatedAt"
+      ]
+    },
+    "CompetitiveGoal": {
+      "title": "CompetitiveGoal",
+      "description": "Join record linking a competitive gap to a converted goal or task, preventing duplicate conversion.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "gapId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "targetType": { "type": "string", "enum": ["goal", "task"], "maxLength": 20 },
+        "goalId": { "type": "string", "maxLength": 128 },
+        "taskId": { "type": "string", "maxLength": 128 },
+        "competitorId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "gapId", "targetType", "title", "createdAt"]
+    },
+    "TaskItem": {
+      "title": "TaskItem",
+      "description": "Actionable task converted from a competitive gap or created manually.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High"], "maxLength": 20 },
+        "status": { "type": "string", "enum": ["Todo", "In Progress", "Done"], "maxLength": 20 },
+        "dueDate": { "type": "string", "maxLength": 20 },
+        "sourceType": { "type": "string", "enum": ["manual", "competitiveGap", "aiProposal"], "maxLength": 30 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "competitorId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "title", "priority", "status", "sourceType", "createdAt", "updatedAt"]
+    },
+    "RewardEvent": {
+      "title": "RewardEvent",
+      "description": "Immutable milestone event log consumed by Phase 6 gamification (XP = 0 in Phase 5B).",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "type": { "type": "string", "enum": ["competitor_surpassed"], "maxLength": 40 },
+        "competitorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "competitorName": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "prevReviewId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "currReviewId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "scoreAdvantage": { "type": "number" },
+        "comparableCount": { "type": "number" },
+        "achievedDate": { "type": "string", "maxLength": 20 },
+        "xpAwarded": { "type": "number" },
+        "processedByPhase6": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "ownerId", "companyId", "type", "competitorId", "competitorName",
+        "prevReviewId", "currReviewId", "scoreAdvantage", "comparableCount",
+        "achievedDate", "xpAwarded", "processedByPhase6", "createdAt"
+      ]
+    },
+    "AiConversation": {
+      "title": "AiConversation",
+      "description": "Owner-scoped GoalX AI CEO chat conversation thread.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "areaHint": { "type": "string", "enum": ["general", "personal", "finance", "leads", "projects", "team", "competition", "gamification"], "maxLength": 30 },
+        "lastMessagePreview": { "type": "string", "maxLength": 300 },
+        "messageCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "title", "areaHint", "lastMessagePreview", "messageCount", "createdAt", "updatedAt"]
+    },
+    "AiMessage": {
+      "title": "AiMessage",
+      "description": "Immutable message belonging to an AI CEO conversation with source citations.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "conversationId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "role": { "type": "string", "enum": ["user", "assistant"], "maxLength": 20 },
+        "content": { "type": "string", "minLength": 1, "maxLength": 15000 },
+        "areaTags": { "type": "array" },
+        "sources": { "type": "array" },
+        "aiUnavailable": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "conversationId", "role", "content", "areaTags", "sources", "aiUnavailable", "createdAt"]
+    },
+    "AiBriefing": {
+      "title": "AiBriefing",
+      "description": "Generated Daily Briefing, Weekly Sunday Review, or Monthly 1st-of-month Strategic Review.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "briefingType": { "type": "string", "enum": ["daily", "weekly", "monthly"], "maxLength": 20 },
+        "date": { "type": "string", "maxLength": 20 },
+        "greeting": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "overview": { "type": "string", "maxLength": 2000 },
+        "sections": { "type": "array" },
+        "riskFlags": { "type": "array" },
+        "topPriority": { "type": "string", "maxLength": 500 },
+        "mode": { "type": "string", "enum": ["ai", "rule_based"], "maxLength": 20 },
+        "generatedAtIso": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "briefingType", "date", "greeting", "overview", "sections", "riskFlags", "topPriority", "mode", "generatedAtIso", "createdAt", "updatedAt"]
+    },
+    "AiActionRequest": {
+      "title": "AiActionRequest",
+      "description": "Pending, confirmed, edited, rejected, expired, or executed AI CEO action proposal restricted to 5 safe record types.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "conversationId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "messageId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "actionType": { "type": "string", "enum": ["create_goal", "create_task", "create_calendar_event", "create_lead_followup", "create_competitive_gap"], "maxLength": 40 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "summary": { "type": "string", "maxLength": 1000 },
+        "payload": { "type": "object" },
+        "status": { "type": "string", "enum": ["Pending", "Confirmed", "Edited", "Rejected", "Executed", "Expired"], "maxLength": 20 },
+        "expiresAtIso": { "type": "string", "maxLength": 40 },
+        "executedRecordId": { "type": "string", "maxLength": 128 },
+        "executedRecordRoute": { "type": "string", "maxLength": 200 },
+        "decisionNote": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "conversationId", "messageId", "actionType", "title", "summary", "payload", "status", "expiresAtIso", "createdAt", "updatedAt"]
+    },
+    "AiUsage": {
+      "title": "AiUsage",
+      "description": "Daily per-user rate-limit counters for AI CEO chat, briefings, and baseline reviews.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "date": { "type": "string", "maxLength": 20 },
+        "chatCount": { "type": "number" },
+        "briefingCount": { "type": "number" },
+        "baselineCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "date", "chatCount", "briefingCount", "baselineCount", "createdAt", "updatedAt"]
+    },
+    "BaselineReview": {
+      "title": "BaselineReview",
+      "description": "3-Month company baseline & 30/60/90 KPI target review snapshot.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "reviewDate": { "type": "string", "maxLength": 20 },
+        "monthsOfData": { "type": "number" },
+        "reliableBaseline": { "type": "boolean" },
+        "warningMessage": { "type": "string", "maxLength": 1000 },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "metrics": { "type": "array" },
+        "targets30Day": { "type": "array" },
+        "targets60Day": { "type": "array" },
+        "targets90Day": { "type": "array" },
+        "suggestions": { "type": "array" },
+        "mode": { "type": "string", "enum": ["ai", "rule_based"], "maxLength": 20 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "reviewDate", "monthsOfData", "reliableBaseline", "warningMessage", "summary", "metrics", "targets30Day", "targets60Day", "targets90Day", "suggestions", "mode", "createdAt"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Immutable audit trail of AI CEO chat, briefings, and confirmed/rejected action proposals.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "actorType": { "type": "string", "enum": ["user", "ai_ceo"], "maxLength": 20 },
+        "action": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "targetType": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "actorType", "action", "targetType", "targetId", "summary", "createdAt"]
+    },
+    "UnifiedNotification": {
+      "title": "UnifiedNotification",
+      "description": "Deduplicated unified notification item across all GoalX modules with safe internal routing.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "category": {
+          "type": "string",
+          "enum": ["deadlines", "projects", "follow_ups", "payments", "goals", "habits", "attendance", "competitor_reviews", "achievements", "targets", "ai_proposals"],
+          "maxLength": 30
+        },
+        "type": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "severity": { "type": "string", "enum": ["info", "warning", "critical", "success"], "maxLength": 20 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "link": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^/.*" },
+        "sourceType": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "sourceId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "category", "type", "severity", "title", "message", "link", "sourceType", "sourceId", "read", "createdAt", "updatedAt"]
+    },
+    "SecurityAuditLog": {
+      "title": "SecurityAuditLog",
+      "description": "Immutable create-only audit log of sensitive data access, exports, deletions, and security changes.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "companyId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "action": {
+          "type": "string",
+          "enum": ["salary_view", "salary_export", "data_export", "ai_history_delete", "module_delete", "password_change", "account_delete", "settings_security_change", "financial_edit"],
+          "maxLength": 40
+        },
+        "actorUid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "actorName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "details": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "timestampIso": { "type": "string", "minLength": 10, "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "companyId", "action", "actorUid", "actorName", "details", "timestampIso", "createdAt"]
+    },
+    "AccountDeletionLog": {
+      "title": "AccountDeletionLog",
+      "description": "Non-PII immutable audit record written during full account deletion.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "deletedCount": { "type": "number" },
+        "storageDeletedCount": { "type": "number" },
+        "authDeleted": { "type": "boolean" },
+        "deletedAtIso": { "type": "string", "minLength": 10, "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "deletedCount", "storageDeletedCount", "authDeleted", "deletedAtIso", "createdAt"]
+    },
+    "XpTransaction": {
+      "title": "XpTransaction",
+      "description": "Server-only deterministic XP transaction ledger entry (client read-only).",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amount": { "type": "number" },
+        "reason": { "type": "string", "maxLength": 200 },
+        "sourceType": { "type": "string", "maxLength": 60 },
+        "sourceId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "amount", "reason", "sourceType", "sourceId", "createdAt"]
+    },
+    "UserXpSummary": {
+      "title": "UserXpSummary",
+      "description": "Server-maintained XP & level cache document (client read-only).",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "totalXp": { "type": "number" },
+        "level": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "totalXp", "level", "updatedAt"]
+    },
+    "Achievement": {
+      "title": "Achievement",
+      "description": "Server-verified executive achievement unlock (client read-only).",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "key": { "type": "string", "maxLength": 80 },
+        "title": { "type": "string", "maxLength": 160 },
+        "unlockedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "key", "title", "unlockedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": { "$ref": "#/entities/UserProfile" }, "description": "User profile documents." },
+    "/companies/{companyId}": { "schema": { "$ref": "#/entities/CompanyProfile" }, "description": "Company profile documents." },
+    "/settings/{settingId}": { "schema": { "$ref": "#/entities/UserSettings" }, "description": "User settings documents." },
+    "/notifications/{notificationId}": { "schema": { "$ref": "#/entities/UnifiedNotification" }, "description": "Unified deduplicated in-app notifications across all modules." },
+    "/securityAuditLogs/{logId}": { "schema": { "$ref": "#/entities/SecurityAuditLog" }, "description": "Immutable security audit log for exports, salary views, deletions, and password changes." },
+    "/accountDeletionLogs/{logId}": { "schema": { "$ref": "#/entities/AccountDeletionLog" }, "description": "Non-PII account deletion audit records." },
+    "/xpTransactions/{txId}": { "schema": { "$ref": "#/entities/XpTransaction" }, "description": "Server-only deterministic XP award ledger (client read-only)." },
+    "/userXp/{userId}": { "schema": { "$ref": "#/entities/UserXpSummary" }, "description": "Server-maintained XP summary cache (client read-only)." },
+    "/achievements/{achievementId}": { "schema": { "$ref": "#/entities/Achievement" }, "description": "Server-verified achievements (client read-only)." },
+    "/goals/{goalId}": { "schema": { "$ref": "#/entities/PersonalGoal" }, "description": "Personal goals." },
+    "/milestones/{milestoneId}": { "schema": { "$ref": "#/entities/GoalMilestone" }, "description": "Goal milestones." },
+    "/goalProgressHistory/{entryId}": { "schema": { "$ref": "#/entities/GoalProgressEntry" }, "description": "Append-only goal progress log entries." },
+    "/habits/{habitId}": { "schema": { "$ref": "#/entities/Habit" }, "description": "Personal habit definitions." },
+    "/habitLogs/{logId}": { "schema": { "$ref": "#/entities/HabitLog" }, "description": "Daily habit completion logs keyed by habitId_date." },
+    "/incomes/{incomeId}": { "schema": { "$ref": "#/entities/PersonalIncome" }, "description": "Personal income records." },
+    "/expenses/{expenseId}": { "schema": { "$ref": "#/entities/PersonalExpense" }, "description": "Personal expense records." },
+    "/savingsGoals/{savingsGoalId}": { "schema": { "$ref": "#/entities/SavingsGoal" }, "description": "Personal savings goals." },
+    "/savingsTransactions/{txId}": { "schema": { "$ref": "#/entities/SavingsTransaction" }, "description": "Savings deposit and withdrawal transactions." },
+    "/calendarEvents/{eventId}": { "schema": { "$ref": "#/entities/CalendarEvent" }, "description": "Calendar events from personal and linked modules." },
+    "/businessServices/{serviceId}": { "schema": { "$ref": "#/entities/BusinessService" }, "description": "Company service catalog offerings." },
+    "/leads/{leadId}": { "schema": { "$ref": "#/entities/Lead" }, "description": "CRM sales leads." },
+    "/leadActivities/{activityId}": { "schema": { "$ref": "#/entities/LeadActivity" }, "description": "Append-only lead stage change history." },
+    "/leadNotes/{noteId}": { "schema": { "$ref": "#/entities/LeadNote" }, "description": "Communication timeline notes for CRM leads." },
+    "/clients/{clientId}": { "schema": { "$ref": "#/entities/Client" }, "description": "Company client directory." },
+    "/projects/{projectId}": { "schema": { "$ref": "#/entities/Project" }, "description": "Company client projects." },
+    "/projectPayments/{paymentId}": { "schema": { "$ref": "#/entities/ProjectPayment" }, "description": "Single source of truth for project payments." },
+    "/teamMembers/{memberId}": { "schema": { "$ref": "#/entities/TeamMember" }, "description": "Company team members." },
+    "/teamMemberPrivate/{memberId}": { "schema": { "$ref": "#/entities/TeamMemberPrivate" }, "description": "Owner-only team member salary configuration." },
+    "/otherIncome/{incomeId}": { "schema": { "$ref": "#/entities/OtherIncome" }, "description": "Non-project company income records." },
+    "/invoices/{invoiceId}": { "schema": { "$ref": "#/entities/Invoice" }, "description": "Lightweight billing invoices with derived status." },
+    "/businessExpenses/{expenseId}": { "schema": { "$ref": "#/entities/BusinessExpense" }, "description": "Company operating expenses." },
+    "/recurringExpenseTemplates/{templateId}": { "schema": { "$ref": "#/entities/RecurringExpenseTemplate" }, "description": "Monthly recurring expense templates." },
+    "/salaryRecords/{salaryId}": { "schema": { "$ref": "#/entities/SalaryRecord" }, "description": "Owner-only monthly payroll records." },
+    "/budgets/{budgetId}": { "schema": { "$ref": "#/entities/Budget" }, "description": "Monthly category/service/overall spending budgets." },
+    "/financeAuditLogs/{logId}": { "schema": { "$ref": "#/entities/FinanceAuditLog" }, "description": "Immutable financial audit log." },
+    "/inAppNotifications/{notificationId}": { "schema": { "$ref": "#/entities/InAppNotification" }, "description": "Deduplicated in-app budget threshold alerts." },
+    "/competitors/{competitorId}": { "schema": { "$ref": "#/entities/Competitor" }, "description": "Tracked competitors and discovery candidates." },
+    "/competitorMetrics/{metricId}": { "schema": { "$ref": "#/entities/CompetitorMetric" }, "description": "Structured competitor capability and evidence metrics." },
+    "/competitorEvidence/{evidenceId}": { "schema": { "$ref": "#/entities/CompetitorEvidence" }, "description": "Evidence entries with source URLs and verification dates." },
+    "/competitorResearchHistory/{runId}": { "schema": { "$ref": "#/entities/CompetitorResearchHistory" }, "description": "Audit log of AI and manual competitor research runs." },
+    "/competitorPendingFindings/{findingId}": { "schema": { "$ref": "#/entities/CompetitorPendingFinding" }, "description": "AI research findings queued for explicit user verification." },
+    "/ownMetrics/{metricId}": { "schema": { "$ref": "#/entities/OwnMetric" }, "description": "Gen Z Neural-X own comparison metrics (GoalX derived or user entered)." },
+    "/competitorScoreConfigs/{configId}": { "schema": { "$ref": "#/entities/CompetitorScoreConfig" }, "description": "Scorecard dimension weights (sum=100) and rating conversion rules." },
+    "/competitorComparisons/{comparisonId}": { "schema": { "$ref": "#/entities/CompetitorComparison" }, "description": "Saved comparison snapshots and permanent Surpassed achievement archives." },
+    "/competitorMonthlyReviews/{reviewId}": { "schema": { "$ref": "#/entities/CompetitorMonthlyReview" }, "description": "Immutable monthly competitor scorecard review snapshots." },
+    "/competitiveGaps/{gapId}": { "schema": { "$ref": "#/entities/CompetitiveGap" }, "description": "Actionable competitive gaps with conversion tracking." },
+    "/competitiveGoals/{linkId}": { "schema": { "$ref": "#/entities/CompetitiveGoal" }, "description": "Join records linking competitive gaps to goals and tasks." },
+    "/tasks/{taskId}": { "schema": { "$ref": "#/entities/TaskItem" }, "description": "Actionable tasks converted from competitive gaps." },
+    "/rewardEvents/{eventId}": { "schema": { "$ref": "#/entities/RewardEvent" }, "description": "Immutable reward event triggers for Phase 6 gamification." },
+    "/aiConversations/{conversationId}": { "schema": { "$ref": "#/entities/AiConversation" }, "description": "Owner-scoped GoalX AI CEO chat conversations." },
+    "/aiMessages/{messageId}": { "schema": { "$ref": "#/entities/AiMessage" }, "description": "Immutable messages inside GoalX AI CEO chat conversations." },
+    "/aiBriefings/{briefingId}": { "schema": { "$ref": "#/entities/AiBriefing" }, "description": "Daily, weekly, and monthly executive briefings keyed by owner/period." },
+    "/aiActionRequests/{requestId}": { "schema": { "$ref": "#/entities/AiActionRequest" }, "description": "AI action proposals awaiting explicit owner confirmation or execution." },
+    "/aiUsage/{usageId}": { "schema": { "$ref": "#/entities/AiUsage" }, "description": "Daily per-user rate-limit counters keyed by uid_YYYY-MM-DD." },
+    "/baselineReviews/{reviewId}": { "schema": { "$ref": "#/entities/BaselineReview" }, "description": "3-month company baseline & 30/60/90 KPI target review snapshots." },
+    "/activityLogs/{logId}": { "schema": { "$ref": "#/entities/ActivityLog" }, "description": "Immutable audit trail for AI CEO interactions and confirmed actions." }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "GoalX",
+  "description": "GoalX — Personal CEO Command Center PWA for managing personal goals, company execution, and competitive intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
