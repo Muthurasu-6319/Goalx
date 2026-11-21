@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute, PublicOnlyRoute } from './components/layout/ProtectedRoute';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
+import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { AuthProvider } from './hooks/useAuth';
@@ -47,6 +48,7 @@ export default function App() {
               <BrowserRouter>
               <ToastContainer />
               <OfflineIndicator />
+              <PWAInstallPrompt />
               <Routes>
                 {/* Public auth routes */}
                 <Route
