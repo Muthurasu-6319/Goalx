@@ -25,7 +25,7 @@ export const PWAInstallPrompt: React.FC = () => {
       // Ignore storage errors
     }
 
-    // Auto-prompt after entering the app (1.2s delay for seamless experience)
+    // Auto-prompt after entering the app (1.2s delay for smooth page load)
     const timer = setTimeout(() => {
       setIsOpen(true);
     }, 1200);
@@ -100,10 +100,10 @@ export const PWAInstallPrompt: React.FC = () => {
               <div className="min-w-0 pr-6">
                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-[11px] font-semibold text-[#DC2626] mb-1">
                   <Smartphone className="w-3 h-3" />
-                  <span>PWA Available</span>
+                  <span>PWA App Available</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-[#1F2937] leading-snug">
-                  GoalX App-ah Install Pannunga
+                  Install GoalX App
                 </h3>
                 <p className="text-xs text-[#64748B] mt-0.5">
                   Personal CEO Command Center
@@ -115,7 +115,7 @@ export const PWAInstallPrompt: React.FC = () => {
             <div className="mt-4 pt-3.5 border-t border-slate-100 space-y-2">
               <div className="flex items-center gap-2.5 text-xs text-[#334155]">
                 <CheckCircle2 className="w-4 h-4 text-[#DC2626] shrink-0" />
-                <span>One-tap instant access from home screen & desktop</span>
+                <span>Instant one-tap access from your home screen & desktop</span>
               </div>
               <div className="flex items-center gap-2.5 text-xs text-[#334155]">
                 <CheckCircle2 className="w-4 h-4 text-[#DC2626] shrink-0" />
@@ -132,11 +132,11 @@ export const PWAInstallPrompt: React.FC = () => {
               <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#475569] leading-relaxed">
                 <p className="font-semibold text-[#1F2937] mb-1 flex items-center gap-1.5">
                   <Share className="w-3.5 h-3.5 text-[#DC2626]" />
-                  <span>Safari-la install panna:</span>
+                  <span>To install on iOS Safari:</span>
                 </p>
                 <ol className="list-decimal list-inside space-y-0.5 ml-1">
-                  <li>Safari toolbar-la <strong>Share</strong> button-ah tap pannunga.</li>
-                  <li>Keezha scroll panni <strong>Add to Home Screen</strong> select pannunga.</li>
+                  <li>Tap the <strong>Share</strong> button in Safari&apos;s bottom toolbar.</li>
+                  <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
                 </ol>
               </div>
             )}
@@ -159,7 +159,7 @@ export const PWAInstallPrompt: React.FC = () => {
                   onClick={handleDismiss}
                   className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#DC2626] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#B91C1C] transition-colors cursor-pointer"
                 >
-                  <span>Purinjithu / Got it</span>
+                  <span>Got it</span>
                 </button>
               ) : (
                 <button
@@ -168,7 +168,7 @@ export const PWAInstallPrompt: React.FC = () => {
                   className="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#DC2626] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#B91C1C] transition-colors cursor-pointer"
                 >
                   <Download className="w-4 h-4" />
-                  <span>Browser Menu-la Install Pannunga</span>
+                  <span>Install via Browser Menu</span>
                 </button>
               )}
 

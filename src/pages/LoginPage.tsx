@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, KeyRound, Loader2, Mail } from 'lucide-react';
+import { PWAInstallButton } from '../components/pwa/PWAInstallButton';
 import { useToast } from '../hooks/useToast';
 import { ROUTES } from '../lib/constants';
 import {
@@ -287,6 +288,22 @@ export const LoginPage: React.FC = () => {
               </button>
             </>
           )}
+        </div>
+
+        {/* PWA Install Card on Login */}
+        <div className="mt-5 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <img
+              src="/favicon.png"
+              alt="GoalX"
+              className="w-10 h-10 rounded-xl object-contain shadow-xs shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#1F2937] truncate">Install GoalX App</p>
+              <p className="text-xs text-[#64748B] truncate">Fast, full-screen executive access</p>
+            </div>
+          </div>
+          <PWAInstallButton compact />
         </div>
       </div>
     </div>
