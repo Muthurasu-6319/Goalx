@@ -15,6 +15,7 @@ import {
   Building2,
   CalendarDays,
   CheckSquare,
+  ChevronRight,
   Flame,
   FolderKanban,
   PiggyBank,
@@ -770,12 +771,20 @@ export const DashboardPage: React.FC = () => {
         {/* Gamification Card */}
         <section className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center">
+            <Link
+              to={ROUTES.ACHIEVEMENTS}
+              className="flex items-center gap-2.5 group cursor-pointer"
+            >
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#16A34A] flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
                 <Trophy className="w-[18px] h-[18px]" />
               </div>
-              <h2 className="text-sm font-semibold text-[#1F2937]">Gamification</h2>
-            </div>
+              <div>
+                <h2 className="text-sm font-semibold text-[#1F2937] group-hover:text-[#DC2626] transition-colors flex items-center gap-1">
+                  <span>Gamification</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#64748B] group-hover:text-[#DC2626]" />
+                </h2>
+              </div>
+            </Link>
             <span className="text-xs font-medium text-[#64748B] tabular-nums">Level {level}</span>
           </div>
 
@@ -806,14 +815,35 @@ export const DashboardPage: React.FC = () => {
                   />
                 </div>
               </div>
+
+              <div className="pt-1 text-right">
+                <Link
+                  to={ROUTES.ACHIEVEMENTS}
+                  className="text-xs font-medium text-[#DC2626] hover:text-[#B91C1C] inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View all badges & XP history</span>
+                  <ChevronRight className="w-3 h-3" />
+                </Link>
+              </div>
             </div>
           ) : (
-            <EmptyState
-              title="Start your CEO streak"
-              description="Log your first daily check-in to earn XP and start your streak."
-              actionLabel="Log check-in"
-              onAction={() => setModalSection('gamification')}
-            />
+            <div className="space-y-3">
+              <EmptyState
+                title="Start your CEO streak"
+                description="Log your first daily check-in to earn XP and start your streak."
+                actionLabel="Log check-in"
+                onAction={() => setModalSection('gamification')}
+              />
+              <div className="text-center">
+                <Link
+                  to={ROUTES.ACHIEVEMENTS}
+                  className="text-xs font-medium text-[#DC2626] hover:text-[#B91C1C] inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Explore 16 Executive Badges</span>
+                  <ChevronRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
           )}
         </section>
       </div>

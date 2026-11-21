@@ -3075,6 +3075,609 @@ ${JSON.stringify({ summary: base.summary, warningMessage: base.warningMessage, m
     });
   });
 
+  // ---------------------------------------------------------------------------
+  // Phase 6A Gamification Endpoints (Server-Side Verification & Deterministic XP)
+  // ---------------------------------------------------------------------------
+
+  interface AchievementCatalogEntry {
+    achievementKey: string;
+    title: string;
+    description: string;
+    category: 'personal' | 'business' | 'competitor' | 'mastery';
+    iconName: string;
+    rewardXp: number;
+    requiredCount: number;
+  }
+
+  const ACHIEVEMENTS_CATALOG: AchievementCatalogEntry[] = [
+    { achievementKey: 'first_task', title: 'First Task Done', description: 'Complete your first task', category: 'personal', iconName: 'CheckCircle2', rewardXp: 50, requiredCount: 1 },
+    { achievementKey: 'task_master', title: 'Task Master', description: 'Complete 25 business or personal tasks', category: 'personal', iconName: 'ListChecks', rewardXp: 150, requiredCount: 25 },
+    { achievementKey: 'first_habit', title: 'Habit Initiate', description: 'Complete your first daily habit check-in', category: 'personal', iconName: 'Flame', rewardXp: 25, requiredCount: 1 },
+    { achievementKey: 'streak_7', title: '7-Day Momentum', description: 'Maintain a 7-day daily check-in streak', category: 'personal', iconName: 'Zap', rewardXp: 100, requiredCount: 7 },
+    { achievementKey: 'streak_30', title: 'Executive Discipline', description: 'Maintain a 30-day consistency streak', category: 'personal', iconName: 'ShieldCheck', rewardXp: 300, requiredCount: 30 },
+    { achievementKey: 'first_goal', title: 'Goal Pioneer', description: 'Complete your first personal goal', category: 'personal', iconName: 'Target', rewardXp: 100, requiredCount: 1 },
+    { achievementKey: 'milestone_5', title: 'Milestone Crusher', description: 'Complete 5 goal milestones', category: 'personal', iconName: 'Flag', rewardXp: 150, requiredCount: 5 },
+    { achievementKey: 'first_client', title: 'First Deal Won', description: 'Convert your first lead into a client', category: 'business', iconName: 'Briefcase', rewardXp: 100, requiredCount: 1 },
+    { achievementKey: 'client_master', title: 'Deal Closer', description: 'Convert 5 leads into active clients', category: 'business', iconName: 'TrendingUp', rewardXp: 250, requiredCount: 5 },
+    { achievementKey: 'first_project', title: 'Project Deliverer', description: 'Successfully complete a client project', category: 'business', iconName: 'FolderCheck', rewardXp: 100, requiredCount: 1 },
+    { achievementKey: 'project_titan', title: 'Project Titan', description: 'Successfully deliver 5 client projects', category: 'business', iconName: 'Award', rewardXp: 300, requiredCount: 5 },
+    { achievementKey: 'competitor_review', title: 'Market Strategist', description: 'Complete a monthly competitor snapshot review', category: 'competitor', iconName: 'Radar', rewardXp: 75, requiredCount: 1 },
+    { achievementKey: 'gap_closed', title: 'Strategic Advantage', description: 'Close a competitive capability gap', category: 'competitor', iconName: 'Crosshair', rewardXp: 150, requiredCount: 1 },
+    { achievementKey: 'surpass_leader', title: 'Industry Leader', description: 'Surpass a competitor across core market metrics', category: 'competitor', iconName: 'Crown', rewardXp: 500, requiredCount: 1 },
+    { achievementKey: 'level_5', title: 'Senior Executive', description: 'Reach Executive Level 5', category: 'mastery', iconName: 'Star', rewardXp: 200, requiredCount: 5 },
+    { achievementKey: 'level_10', title: 'CEO Mastery', description: 'Reach Chief Executive Level 10', category: 'mastery', iconName: 'Trophy', rewardXp: 500, requiredCount: 10 },
+  ];
+
+  function sanitizeDeterministicId(raw: string): string {
+    return raw.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 80);
+  }
+
+  function computePast7DaysBreakdown(txs: { date?: string; amount?: number }[]): {
+    weeklyBreakdown: { day: string; date: string; xp: number }[];
+    weekTotalXp: number;
+  } {
+    const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const now = new Date();
+    const result: { day: string; date: string; xp: number }[] = [];
+    let weekTotalXp = 0;
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const isoDate = d.toISOString().slice(0, 10);
+      const dayName = DAY_NAMES[d.getDay()];
+
+      const dayXp = txs
+        .filter((t) => t.date === isoDate)
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+      result.push({ day: dayName, date: isoDate, xp: dayXp });
+      weekTotalXp += dayXp;
+    }
+
+    return { weeklyBreakdown: result, weekTotalXp };
+  }
+
+  app.get('/api/gamification/summary', async (req: Request, res: Response) => {
+    const auth = await verifyBearerUser(req, res);
+    if (!auth) return;
+
+    try {
+      const { uid, idToken } = auth;
+      const [userXpDoc, txs, achDocs] = await Promise.all([
+        fetchFsDocByPath<Record<string, unknown>>('userXp', uid, idToken),
+        queryOwnedCollection<Record<string, unknown>>('xpTransactions', uid, idToken, 500),
+        queryOwnedCollection<Record<string, unknown>>('achievements', uid, idToken, 100),
+      ]);
+
+      const totalXp = txs.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+      const level = Math.floor(totalXp / 250) + 1;
+      const streakDays = Number(userXpDoc?.streakDays ?? 0);
+
+      const unlockedKeyMap = new Map<string, Record<string, unknown>>();
+      for (const a of achDocs) {
+        if (typeof a.achievementKey === 'string') {
+          unlockedKeyMap.set(a.achievementKey, a);
+        }
+      }
+
+      const achievements = ACHIEVEMENTS_CATALOG.map((cat) => {
+        const found = unlockedKeyMap.get(cat.achievementKey);
+        return {
+          id: `${uid}_${cat.achievementKey}`,
+          ownerId: uid,
+          achievementKey: cat.achievementKey,
+          title: cat.title,
+          description: cat.description,
+          category: cat.category,
+          iconName: cat.iconName,
+          rewardXp: cat.rewardXp,
+          requiredCount: cat.requiredCount,
+          currentCount: found ? cat.requiredCount : 0,
+          isUnlocked: Boolean(found),
+          unlockedAt: typeof found?.unlockedAt === 'string' ? found.unlockedAt : null,
+        };
+      });
+
+      const { weeklyBreakdown, weekTotalXp } = computePast7DaysBreakdown(
+        txs as { date?: string; amount?: number }[]
+      );
+
+      res.json({
+        userXp: {
+          id: uid,
+          ownerId: uid,
+          totalXp,
+          level,
+          streakDays,
+          totalTransactions: txs.length,
+          lastAwardedAt: typeof userXpDoc?.lastAwardedAt === 'string' ? userXpDoc.lastAwardedAt : undefined,
+          updatedAt: userXpDoc?.updatedAt ?? new Date().toISOString(),
+        },
+        recentTransactions: txs.slice(0, 50),
+        achievements,
+        weeklyBreakdown,
+        weekTotalXp,
+      });
+    } catch (err) {
+      console.error('Failed to get gamification summary:', err);
+      res.status(500).json({ error: safePublicErrorMessage(err, 'Failed to fetch gamification stats.') });
+    }
+  });
+
+  app.post('/api/gamification/sync-xp', async (req: Request, res: Response) => {
+    const auth = await verifyBearerUser(req, res);
+    if (!auth) return;
+
+    try {
+      const { uid, idToken } = auth;
+      const ist = getAsiaKolkataDateParts();
+      const todayIso = ist.dateStr;
+
+      // 1. Fetch user's custom XP values from settings or use defaults
+      const settings = await fetchFsDocByPath<Record<string, unknown>>('userSettings', uid, idToken);
+      const rawCfg = (settings?.gamificationConfig as Record<string, number> | undefined) ?? {};
+      const xpCfg = {
+        taskComplete: Math.min(1000, Math.max(0, Number(rawCfg.taskComplete ?? 10))),
+        goalComplete: Math.min(1000, Math.max(0, Number(rawCfg.goalComplete ?? 100))),
+        milestoneComplete: Math.min(1000, Math.max(0, Number(rawCfg.milestoneComplete ?? 25))),
+        habitCheckIn: Math.min(1000, Math.max(0, Number(rawCfg.habitCheckIn ?? 5))),
+        projectComplete: Math.min(1000, Math.max(0, Number(rawCfg.projectComplete ?? 50))),
+        clientWon: Math.min(1000, Math.max(0, Number(rawCfg.clientWon ?? 30))),
+        competitorSurpassed: Math.min(1000, Math.max(0, Number(rawCfg.competitorSurpassed ?? 100))),
+        monthlyReviewSaved: Math.min(1000, Math.max(0, Number(rawCfg.monthlyReviewSaved ?? 40))),
+      };
+
+      // 2. Fetch existing transactions to enforce idempotent awards & 'keep XP' policy
+      const existingTxs = await queryOwnedCollection<Record<string, unknown>>('xpTransactions', uid, idToken, 1000);
+      const awardedTxIds = new Set(existingTxs.map((t) => String(t.id)));
+      let runningTotalXp = existingTxs.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+      // 3. Fetch existing achievements
+      const existingAchs = await queryOwnedCollection<Record<string, unknown>>('achievements', uid, idToken, 100);
+      const unlockedAchKeys = new Set(existingAchs.map((a) => String(a.achievementKey)));
+
+      // 4. Fetch real source records from Firestore
+      const [
+        tasks,
+        goals,
+        habitLogs,
+        projects,
+        leads,
+        rewardEvents,
+        reviews,
+        gaps,
+        existingUserDoc,
+      ] = await Promise.all([
+        queryOwnedCollection<Record<string, unknown>>('tasks', uid, idToken, 500),
+        queryOwnedCollection<Record<string, unknown>>('goals', uid, idToken, 200),
+        queryOwnedCollection<Record<string, unknown>>('habitLogs', uid, idToken, 500),
+        queryOwnedCollection<Record<string, unknown>>('projects', uid, idToken, 200),
+        queryOwnedCollection<Record<string, unknown>>('leads', uid, idToken, 300),
+        queryOwnedCollection<Record<string, unknown>>('rewardEvents', uid, idToken, 200),
+        queryOwnedCollection<Record<string, unknown>>('competitorMonthlyReviews', uid, idToken, 200),
+        queryOwnedCollection<Record<string, unknown>>('competitiveGaps', uid, idToken, 200),
+        fetchFsDocByPath<Record<string, unknown>>('users', uid, idToken),
+      ]);
+
+      const newTxWrites: Record<string, unknown>[] = [];
+      const newAchWrites: Record<string, unknown>[] = [];
+      let newAwardedXp = 0;
+
+      // --- Verify Tasks ---
+      const doneTasks = tasks.filter((t) => t.status === 'Done' && !t.isDeleted);
+      for (const t of doneTasks) {
+        const txId = `task_complete_${sanitizeDeterministicId(String(t.id))}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.taskComplete;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: `Task completed: ${sanitizeText(String(t.title ?? 'Task'), 80)}`.slice(0, 180),
+                sourceType: 'task',
+                sourceId: sanitizeDeterministicId(String(t.id)),
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      // --- Verify Goals & Milestones ---
+      const completedGoals = goals.filter((g) => g.status === 'Completed' && !g.isDeleted);
+      for (const g of completedGoals) {
+        const txId = `goal_complete_${sanitizeDeterministicId(String(g.id))}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.goalComplete;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: `Personal goal completed: ${sanitizeText(String(g.title ?? 'Goal'), 80)}`.slice(0, 180),
+                sourceType: 'goal',
+                sourceId: sanitizeDeterministicId(String(g.id)),
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      let completedMilestonesCount = 0;
+      for (const g of goals) {
+        if (g.isDeleted) continue;
+        const milestones = Array.isArray(g.milestones) ? g.milestones : [];
+        for (const m of milestones as Record<string, unknown>[]) {
+          if (m?.completed) {
+            completedMilestonesCount++;
+            const mId = sanitizeDeterministicId(String(m.id ?? m.title ?? 'm'));
+            const txId = `goal_milestone_${sanitizeDeterministicId(String(g.id))}_${mId}`;
+            if (!awardedTxIds.has(txId)) {
+              const amount = xpCfg.milestoneComplete;
+              if (amount > 0) {
+                newTxWrites.push(
+                  buildCreateWrite('xpTransactions', txId, {
+                    ownerId: uid,
+                    amount,
+                    reason: `Milestone completed: ${sanitizeText(String(m.title ?? 'Milestone'), 80)}`.slice(0, 180),
+                    sourceType: 'milestone',
+                    sourceId: `${sanitizeDeterministicId(String(g.id))}_${mId}`.slice(0, 100),
+                    date: todayIso,
+                  }, false)
+                );
+                awardedTxIds.add(txId);
+                runningTotalXp += amount;
+                newAwardedXp += amount;
+              }
+            }
+          }
+        }
+      }
+
+      // --- Verify Habits ---
+      const completedHabitLogs = habitLogs.filter((h) => h.completed === true);
+      for (const h of completedHabitLogs) {
+        const hDate = typeof h.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(h.date) ? h.date : todayIso;
+        const txId = `habit_${sanitizeDeterministicId(hDate)}_${sanitizeDeterministicId(String(h.habitId ?? 'h'))}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.habitCheckIn;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: `Daily habit completed: ${sanitizeText(String(h.habitTitle ?? 'Habit'), 80)}`.slice(0, 180),
+                sourceType: 'habit',
+                sourceId: sanitizeDeterministicId(String(h.habitId ?? 'h')),
+                date: hDate,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      // --- Verify Projects ---
+      const completedProjects = projects.filter((p) => p.status === 'Completed');
+      for (const p of completedProjects) {
+        const txId = `project_complete_${sanitizeDeterministicId(String(p.id))}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.projectComplete;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: `Project delivered: ${sanitizeText(String(p.title ?? p.name ?? 'Project'), 80)}`.slice(0, 180),
+                sourceType: 'project',
+                sourceId: sanitizeDeterministicId(String(p.id)),
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      // --- Verify Leads Converted ---
+      const wonLeads = leads.filter((l) => l.status === 'Won');
+      for (const l of wonLeads) {
+        const txId = `lead_won_${sanitizeDeterministicId(String(l.id))}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.clientWon;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: `Lead converted to client: ${sanitizeText(String(l.clientName ?? l.name ?? 'Client'), 80)}`.slice(0, 180),
+                sourceType: 'lead',
+                sourceId: sanitizeDeterministicId(String(l.id)),
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      // --- Verify Competitor Surpassed ---
+      const surpassedEvents = rewardEvents.filter((r) => r.type === 'competitor_surpassed');
+      for (const r of surpassedEvents) {
+        const sId = sanitizeDeterministicId(String(r.sourceId ?? r.id));
+        const txId = `competitor_surpassed_${sId}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.competitorSurpassed;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: 'Market victory: Competitor surpassed in core metrics',
+                sourceType: 'competitor_surpassed',
+                sourceId: sId,
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      // --- Verify Competitor Monthly Reviews ---
+      for (const rev of reviews) {
+        const rPeriod = sanitizeDeterministicId(String(rev.reviewPeriod ?? todayIso.slice(0, 7)));
+        const cId = sanitizeDeterministicId(String(rev.competitorId ?? 'comp'));
+        const txId = `competitor_review_${cId}_${rPeriod}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = xpCfg.monthlyReviewSaved;
+          if (amount > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', txId, {
+                ownerId: uid,
+                amount,
+                reason: `Monthly competitor review completed (${rPeriod})`,
+                sourceType: 'competitor_review',
+                sourceId: `${cId}_${rPeriod}`.slice(0, 100),
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(txId);
+            runningTotalXp += amount;
+            newAwardedXp += amount;
+          }
+        }
+      }
+
+      // --- Verify Competitive Gaps Closed ---
+      const closedGaps = gaps.filter((g) => g.status === 'Closed' || g.status === 'completed');
+      for (const g of closedGaps) {
+        const txId = `gap_closed_${sanitizeDeterministicId(String(g.id))}`;
+        if (!awardedTxIds.has(txId)) {
+          const amount = 30; // standard 30 XP per closed gap
+          newTxWrites.push(
+            buildCreateWrite('xpTransactions', txId, {
+              ownerId: uid,
+              amount,
+              reason: `Competitive gap closed: ${sanitizeText(String(g.title ?? 'Gap'), 80)}`.slice(0, 180),
+              sourceType: 'gap_closed',
+              sourceId: sanitizeDeterministicId(String(g.id)),
+              date: todayIso,
+            }, false)
+          );
+          awardedTxIds.add(txId);
+          runningTotalXp += amount;
+          newAwardedXp += amount;
+        }
+      }
+
+      // 5. Calculate Consecutive Streak Days
+      const completedDates = Array.from(
+        new Set(completedHabitLogs.map((h) => String(h.date ?? '').slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)))
+      ).sort().reverse();
+
+      let streakDays = 0;
+      if (completedDates.length > 0) {
+        const dNow = new Date();
+        const todayStr = dNow.toISOString().slice(0, 10);
+        const yDate = new Date(dNow.getTime() - 24 * 60 * 60 * 1000);
+        const yesterdayStr = yDate.toISOString().slice(0, 10);
+
+        if (completedDates.includes(todayStr) || completedDates.includes(yesterdayStr)) {
+          let testDate = completedDates.includes(todayStr) ? dNow : yDate;
+          while (true) {
+            const checkStr = testDate.toISOString().slice(0, 10);
+            if (completedDates.includes(checkStr)) {
+              streakDays++;
+              testDate = new Date(testDate.getTime() - 24 * 60 * 60 * 1000);
+            } else {
+              break;
+            }
+          }
+        }
+      }
+
+      // 6. Calculate Executive Level
+      let level = Math.floor(runningTotalXp / 250) + 1;
+
+      // 7. Evaluate 16 Executive Achievements
+      const metricCounts: Record<string, number> = {
+        first_task: doneTasks.length,
+        task_master: doneTasks.length,
+        first_habit: completedHabitLogs.length,
+        streak_7: streakDays,
+        streak_30: streakDays,
+        first_goal: completedGoals.length,
+        milestone_5: completedMilestonesCount,
+        first_client: wonLeads.length,
+        client_master: wonLeads.length,
+        first_project: completedProjects.length,
+        project_titan: completedProjects.length,
+        competitor_review: reviews.length,
+        gap_closed: closedGaps.length,
+        surpass_leader: surpassedEvents.length,
+        level_5: level,
+        level_10: level,
+      };
+
+      let newAchievementsCount = 0;
+      for (const ach of ACHIEVEMENTS_CATALOG) {
+        const currentCount = metricCounts[ach.achievementKey] ?? 0;
+        if (currentCount >= ach.requiredCount && !unlockedAchKeys.has(ach.achievementKey)) {
+          // Unlock achievement doc
+          const achDocId = `${uid}_${ach.achievementKey}`;
+          newAchWrites.push(
+            buildCreateWrite('achievements', achDocId, {
+              ownerId: uid,
+              achievementKey: ach.achievementKey,
+              title: ach.title,
+              description: ach.description,
+              category: ach.category,
+              iconName: ach.iconName,
+              rewardXp: ach.rewardXp,
+              unlockedAt: new Date().toISOString(),
+              isUnlocked: true,
+            }, true)
+          );
+          unlockedAchKeys.add(ach.achievementKey);
+          newAchievementsCount++;
+
+          // Award achievement reward XP
+          const achTxId = `achievement_${ach.achievementKey}_${sanitizeDeterministicId(uid)}`;
+          if (!awardedTxIds.has(achTxId) && ach.rewardXp > 0) {
+            newTxWrites.push(
+              buildCreateWrite('xpTransactions', achTxId, {
+                ownerId: uid,
+                amount: ach.rewardXp,
+                reason: `Achievement unlocked: ${ach.title}`,
+                sourceType: 'achievement',
+                sourceId: ach.achievementKey,
+                date: todayIso,
+              }, false)
+            );
+            awardedTxIds.add(achTxId);
+            runningTotalXp += ach.rewardXp;
+            newAwardedXp += ach.rewardXp;
+          }
+        }
+      }
+
+      // Re-calculate level after achievement rewards
+      level = Math.floor(runningTotalXp / 250) + 1;
+
+      // 8. Commit all new transactions & achievements in batches of max 300
+      const allNewWrites = [...newTxWrites, ...newAchWrites];
+      for (let i = 0; i < allNewWrites.length; i += 300) {
+        const batch = allNewWrites.slice(i, i + 300);
+        await commitFsWrites(idToken, batch);
+      }
+
+      // 9. Update/Create userXp document
+      const userXpExists = Boolean(await fetchFsDocByPath('userXp', uid, idToken));
+      const userXpFields = {
+        ownerId: uid,
+        totalXp: runningTotalXp,
+        level,
+        streakDays,
+        totalTransactions: awardedTxIds.size,
+        lastAwardedAt: new Date().toISOString(),
+      };
+
+      if (userXpExists) {
+        await commitFsWrites(idToken, [buildUpdateWrite('userXp', uid, userXpFields)]);
+      } else {
+        await commitFsWrites(idToken, [buildCreateWrite('userXp', uid, userXpFields, true)]);
+      }
+
+      // 10. Sync cache on users document
+      if (existingUserDoc) {
+        await commitFsWrites(idToken, [
+          buildUpdateWrite('users', uid, {
+            xp: runningTotalXp,
+            level,
+            streakDays,
+          }),
+        ]);
+      }
+
+      // 11. Fetch final fresh state to return to client
+      const [finalTxs, finalAchs] = await Promise.all([
+        queryOwnedCollection<Record<string, unknown>>('xpTransactions', uid, idToken, 500),
+        queryOwnedCollection<Record<string, unknown>>('achievements', uid, idToken, 100),
+      ]);
+
+      const unlockedFinalMap = new Map<string, Record<string, unknown>>();
+      for (const a of finalAchs) {
+        if (typeof a.achievementKey === 'string') {
+          unlockedFinalMap.set(a.achievementKey, a);
+        }
+      }
+
+      const achievementsList = ACHIEVEMENTS_CATALOG.map((cat) => {
+        const found = unlockedFinalMap.get(cat.achievementKey);
+        return {
+          id: `${uid}_${cat.achievementKey}`,
+          ownerId: uid,
+          achievementKey: cat.achievementKey,
+          title: cat.title,
+          description: cat.description,
+          category: cat.category,
+          iconName: cat.iconName,
+          rewardXp: cat.rewardXp,
+          requiredCount: cat.requiredCount,
+          currentCount: metricCounts[cat.achievementKey] ?? (found ? cat.requiredCount : 0),
+          isUnlocked: Boolean(found),
+          unlockedAt: typeof found?.unlockedAt === 'string' ? found.unlockedAt : null,
+        };
+      });
+
+      const { weeklyBreakdown, weekTotalXp } = computePast7DaysBreakdown(
+        finalTxs as { date?: string; amount?: number }[]
+      );
+
+      res.json({
+        userXp: {
+          id: uid,
+          ownerId: uid,
+          totalXp: runningTotalXp,
+          level,
+          streakDays,
+          totalTransactions: awardedTxIds.size,
+          lastAwardedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        recentTransactions: finalTxs.slice(0, 50),
+        achievements: achievementsList,
+        weeklyBreakdown,
+        weekTotalXp,
+        syncResult: {
+          newTransactionsCount: newTxWrites.length,
+          awardedXp: newAwardedXp,
+          newAchievementsCount,
+        },
+      });
+    } catch (err) {
+      console.error('Failed to sync gamification XP:', err);
+      res.status(500).json({ error: safePublicErrorMessage(err, 'Failed to verify and award executive XP.') });
+    }
+  });
+
   // Vite dev middleware vs production dist static serving
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');

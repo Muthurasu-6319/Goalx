@@ -72,6 +72,78 @@ export interface GamificationXpConfig {
   monthlyReviewSaved: number;
 }
 
+export type XpSourceType =
+  | 'task'
+  | 'habit'
+  | 'milestone'
+  | 'goal'
+  | 'project'
+  | 'lead'
+  | 'target'
+  | 'competitor_review'
+  | 'gap_closed'
+  | 'competitor_surpassed'
+  | 'achievement';
+
+export interface XpTransaction {
+  id: string;
+  ownerId: string;
+  amount: number;
+  reason: string;
+  sourceType: XpSourceType;
+  sourceId: string;
+  date: string; // YYYY-MM-DD
+  createdAt: Timestamp | string;
+}
+
+export interface UserXpSummary {
+  id: string;
+  ownerId: string;
+  totalXp: number;
+  level: number;
+  streakDays: number;
+  totalTransactions: number;
+  lastAwardedAt?: string;
+  updatedAt: Timestamp | string;
+}
+
+export type AchievementCategory = 'personal' | 'business' | 'competitor' | 'mastery';
+
+export interface AchievementItem {
+  id: string;
+  ownerId?: string;
+  achievementKey: string;
+  title: string;
+  description: string;
+  category: AchievementCategory;
+  iconName: string;
+  rewardXp: number;
+  requiredCount: number;
+  currentCount?: number;
+  isUnlocked: boolean;
+  unlockedAt?: string | null;
+  updatedAt?: Timestamp | string;
+}
+
+export interface WeeklyXpPoint {
+  day: string; // 'Mon', 'Tue', etc.
+  date: string; // 'YYYY-MM-DD'
+  xp: number;
+}
+
+export interface GamificationSummaryResponse {
+  userXp: UserXpSummary;
+  recentTransactions: XpTransaction[];
+  achievements: AchievementItem[];
+  weeklyBreakdown: WeeklyXpPoint[];
+  weekTotalXp: number;
+  syncResult?: {
+    newTransactionsCount: number;
+    awardedXp: number;
+    newAchievementsCount: number;
+  };
+}
+
 export interface UserSettings {
   ownerId: string;
   theme: ThemeMode;

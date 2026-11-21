@@ -149,6 +149,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [ROUTES.COMPETITION_REPORT]: 'Achievement Report',
   [ROUTES.ANALYTICS]: 'Executive & Competition Analytics',
   [ROUTES.AI_CEO]: 'GoalX AI CEO',
+  [ROUTES.ACHIEVEMENTS]: 'Executive Achievements & XP',
   [ROUTES.NOTIFICATIONS]: 'Notifications',
   [ROUTES.SETTINGS]: 'Settings',
 };

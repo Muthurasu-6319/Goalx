@@ -7,6 +7,7 @@ import {
   limit,
   orderBy,
   query,
+  Query,
   QueryDocumentSnapshot,
   startAfter,
   Timestamp,
@@ -71,7 +72,7 @@ async function fetchOwnedCollectionPaged(
   const pageSize = 400;
 
   while (true) {
-    const q = cursor
+    const q: Query = cursor
       ? query(
           collection(db, colName),
           where('ownerId', '==', uid),

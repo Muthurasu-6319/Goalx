@@ -35,9 +35,9 @@ export function sanitizeInternalRoute(route: string | null | undefined, fallback
 
 export function sanitizeStorageFileName(fileName: string): string {
   const cleaned = fileName
+    .replace(/\.\.+/g, '_')
     .replace(/[^a-zA-Z0-9._-]/g, '_')
-    .replace(/^\.+/, '')
-    .replace(/\.{2,}/g, '.')
+    .replace(/_{3,}/g, '__')
     .slice(0, 120);
   return cleaned || 'receipt';
 }

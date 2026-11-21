@@ -12,8 +12,8 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AiCeoPage } from './pages/AiCeoPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { ClientDetailPage } from './pages/ClientDetailPage';
+import { AchievementsPage } from './pages/AchievementsPage';
 import { ClientsPage } from './pages/ClientsPage';
-import { ComingSoonPage } from './pages/ComingSoonPage';
 import { CompanyPage } from './pages/CompanyPage';
 import { CompareCompetitorsPage } from './pages/CompareCompetitorsPage';
 import { CompetitionPage } from './pages/CompetitionPage';
@@ -297,18 +297,14 @@ export default function App() {
                   }
                 />
 
-                {/* Future Phase Coming Soon Routes */}
-                {[ROUTES.ACHIEVEMENTS].map((routePath) => (
-                  <Route
-                    key={routePath}
-                    path={routePath}
-                    element={
-                      <ProtectedRoute>
-                        <ComingSoonPage path={routePath} />
-                      </ProtectedRoute>
-                    }
-                  />
-                ))}
+                <Route
+                  path={ROUTES.ACHIEVEMENTS}
+                  element={
+                    <ProtectedRoute>
+                      <AchievementsPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Root & fallback redirects */}
                 <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />

@@ -1714,6 +1714,66 @@ service cloud.firestore {
         && data.createdAt is timestamp;
     }
 
+    function isValidXpTransaction(data, txId) {
+      return data.keys().hasAll([
+          'ownerId', 'amount', 'reason', 'sourceType', 'sourceId', 'date', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId', 'amount', 'reason', 'sourceType', 'sourceId', 'date', 'createdAt'
+        ])
+        && data.ownerId is string && isValidId(data.ownerId) && data.ownerId == request.auth.uid
+        && data.amount is int && data.amount > 0 && data.amount <= 1000
+        && data.reason is string && data.reason.size() >= 1 && data.reason.size() <= 200
+        && data.sourceType is string && data.sourceType in [
+          'task', 'habit', 'milestone', 'goal', 'project', 'lead',
+          'target', 'competitor_review', 'gap_closed', 'competitor_surpassed', 'achievement'
+        ]
+        && data.sourceId is string && data.sourceId.size() >= 1 && data.sourceId.size() <= 128
+        && data.date is string && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.createdAt is timestamp;
+    }
+
+    function isValidUserXp(data, userId) {
+      return data.keys().hasAll([
+          'ownerId', 'totalXp', 'level', 'streakDays', 'totalTransactions', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId', 'totalXp', 'level', 'streakDays', 'totalTransactions', 'lastAwardedAt', 'updatedAt'
+        ])
+        && data.ownerId is string && isValidId(data.ownerId) && data.ownerId == request.auth.uid
+        && userId == request.auth.uid
+        && isNonNegativeInt(data.totalXp)
+        && data.level is int && data.level >= 1 && data.level <= 100
+        && isNonNegativeInt(data.streakDays)
+        && isNonNegativeInt(data.totalTransactions)
+        && (
+          !('lastAwardedAt' in data) ||
+          (data.lastAwardedAt is string && data.lastAwardedAt.size() <= 40)
+        )
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAchievement(data) {
+      return data.keys().hasAll([
+          'ownerId', 'achievementKey', 'title', 'description', 'category',
+          'iconName', 'rewardXp', 'unlockedAt', 'isUnlocked', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId', 'achievementKey', 'title', 'description', 'category',
+          'iconName', 'rewardXp', 'unlockedAt', 'isUnlocked', 'updatedAt'
+        ])
+        && data.ownerId is string && isValidId(data.ownerId) && data.ownerId == request.auth.uid
+        && data.achievementKey is string && data.achievementKey.size() >= 1 && data.achievementKey.size() <= 64
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 100
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 250
+        && data.category is string && data.category in ['personal', 'business', 'competitor', 'mastery']
+        && data.iconName is string && data.iconName.size() >= 1 && data.iconName.size() <= 64
+        && isNonNegativeInt(data.rewardXp)
+        && data.unlockedAt is string && data.unlockedAt.size() <= 40
+        && data.isUnlocked is bool
+        && data.updatedAt is timestamp;
+    }
+
     // -------------------------------------------------------------------------
     // Phase 1 Collection Match Blocks
     // -------------------------------------------------------------------------
@@ -3002,7 +3062,10 @@ service cloud.firestore {
     match /xpTransactions/{txId} {
       allow get: if isSignedIn() && isValidId(txId) && isOwner(existing().ownerId);
       allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
-      allow create: if false;
+      allow create: if isSignedIn()
+        && isValidId(txId)
+        && isValidXpTransaction(incoming(), txId)
+        && incoming().createdAt == request.time;
       allow update: if false;
       allow delete: if false;
     }
@@ -3013,16 +3076,21 @@ service cloud.firestore {
         && isOwner(userId)
         && (resource == null || isOwner(existing().ownerId));
       allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
-      allow create: if false;
-      allow update: if false;
+      allow create, update: if isSignedIn()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidUserXp(incoming(), userId)
+        && incoming().updatedAt == request.time;
       allow delete: if false;
     }
 
     match /achievements/{achievementId} {
       allow get: if isSignedIn() && isValidId(achievementId) && isOwner(existing().ownerId);
       allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
-      allow create: if false;
-      allow update: if false;
+      allow create, update: if isSignedIn()
+        && isValidId(achievementId)
+        && isValidAchievement(incoming())
+        && incoming().updatedAt == request.time;
       allow delete: if false;
     }
   }

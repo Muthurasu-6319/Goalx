@@ -50,8 +50,9 @@ test('COLLECTION_REGISTRY covers every collection in firestore.rules, src/, and 
   ].map((m) => m[1]);
 
   const discovered = new Set([...rulesMatches, ...srcCollectionMatches, ...serverMatches]);
-  // Connectivity ping doc in firebase.ts
+  // Connectivity ping doc in firebase.ts & root rule namespace
   discovered.delete('test');
+  discovered.delete('databases');
 
   const missing = [...discovered].filter((name) => !REGISTERED_COLLECTION_NAMES.has(name));
   assert.deepEqual(
