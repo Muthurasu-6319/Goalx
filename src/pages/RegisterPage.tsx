@@ -58,9 +58,11 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-10 px-4 sm:px-6">
       <div className="w-full max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-8 justify-center">
-          <div className="w-10 h-10 rounded-xl bg-[#DC2626] flex items-center justify-center text-white font-bold text-base shadow-sm">
-            GX
-          </div>
+          <img
+            src="/favicon.png"
+            alt="GoalX"
+            className="w-11 h-11 rounded-xl object-contain shadow-xs"
+          />
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[#1F2937]">GoalX</h1>
             <p className="text-xs text-[#64748B]">Personal CEO Command Center</p>

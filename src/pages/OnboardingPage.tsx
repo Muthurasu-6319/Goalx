@@ -181,9 +181,11 @@ export const OnboardingPage: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#DC2626] flex items-center justify-center text-white font-bold text-sm">
-              GX
-            </div>
+            <img
+              src="/favicon.png"
+              alt="GoalX"
+              className="w-9 h-9 rounded-xl object-contain shadow-xs"
+            />
             <div>
               <h1 className="text-lg font-bold text-[#1F2937]">GoalX Setup</h1>
               <p className="text-xs text-[#64748B]">Step {step} of 2 · Optional questions are skippable</p>

@@ -145,9 +145,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
             to={ROUTES.DASHBOARD}
             className="flex items-center gap-2.5 overflow-hidden whitespace-nowrap"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#DC2626] flex items-center justify-center text-white font-bold text-sm shrink-0">
-              GX
-            </div>
+            <img
+              src="/favicon.png"
+              alt="GoalX"
+              className="w-8 h-8 rounded-lg object-contain shrink-0 shadow-xs"
+            />
             {!isCollapsed && (
               <span className="text-lg font-bold tracking-tight text-[#1F2937]">GoalX</span>
             )}
@@ -218,9 +220,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         {/* Mobile Compact Header (52px) */}
         <header className="md:hidden sticky top-0 z-30 h-[52px] bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] px-4 flex items-center justify-between gap-4">
           <NavLink to={ROUTES.DASHBOARD} className="flex items-center gap-2 shrink-0">
-            <div className="w-7 h-7 rounded-lg bg-[#DC2626] flex items-center justify-center text-white font-bold text-xs">
-              GX
-            </div>
+            <img
+              src="/favicon.png"
+              alt="GoalX"
+              className="w-7 h-7 rounded-lg object-contain shrink-0"
+            />
             <span className="text-base font-bold tracking-tight text-[#1F2937] whitespace-nowrap">
               GoalX
             </span>
